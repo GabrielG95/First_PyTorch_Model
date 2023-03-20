@@ -4,13 +4,13 @@ from torch import nn
 
 # Create our parameters
 # We don't normally know this info but for the our first model we'll create this our own
-weight = 0.7
-bias = 0.3
+weight = 0.3
+bias = 0.9
 
 # Create our tensor values
 start = 0
 end = 1
-step = 0.02
+step = 0.01
 
 # This is our input
 # We unsqueeze this tensor to add a dimension
@@ -19,10 +19,11 @@ X = torch.arange(start, end, step).unsqueeze(dim=1)
 # Our model will learn via Linear Regression Formula
 # Linear Regression Formula: y = a + bX (a = bias) (weight = b) X = our tensor
 y = weight * X + bias
+
 " Split our data "
 train_split = int(0.8 * len(X)) # We're trying to get 80% of our data as training data so we multiply by .8
 
-# Gather 40% of our training data to use for training (the data we use to train an algorithm or ML model to predict the outcome we design our model to predict)
+# Gather 80% of our training data to use for training (the data we use to train an algorithm or ML model to predict the outcome we design our model to predict)
 X_train, y_train = X[:train_split], y[:train_split]
 
 # This is our test data (Once our ML model is built (with our training data), we need to unsee data to test our model)
@@ -33,7 +34,7 @@ X_test, y_test = X[train_split:], y[train_split:]
 def plot_predictions(train_data=X_train, train_labels=y_train, test_data=X_test, test_label=y_test, predictions=None):
 
     # The size of the window of our graph window
-    plt.figure(figsize=(10,7))
+    plt.figure(figsize=(10,10))
 
     # Plot training data in blue
     plt.scatter(train_data, train_labels, c='b', s=4, label='Training label')
@@ -50,25 +51,16 @@ class LinearRegressionModel(nn.Module):
     # Create a constructor 
     def __init__(self):
         super().__init__()
-        # Our parameter for weights (This is what we need to train and improve to get to 0.7)
-        self.weights = nn.Parameter(torch.randn(1,
-                                                requires_grad=True,
-                                                dtype=torch.float))
-
-        # Our parameter for bias (This is what we need to train and improve to get to 0.3)
-        self.bias = nn.Parameter(torch.randn(1,
-                                             requires_grad=True,
-                                             dtype=torch.float))
-    # This is the formula our model will use to learn
+        
+        self.linear_layer = nn.Linear(in_features=1,
+                                      out_features=1)
+        
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.weights * x + self.bias
+        return self.linear_layer(x)
 
 torch.manual_seed(42)
-# Creating our first model
+# Creating instance of our model
 model_0 = LinearRegressionModel()
-
-# To check our models predictive power, let's see how well it predicts 'y_test' based on 'X_test'
-# When we pass data through our model it's going to run it though the forward() method
 
 # Check what kind of predictions our model is making before we start to train it 
 with torch.inference_mode():
@@ -120,13 +112,14 @@ for epoch in range(epochs):
         # 2. Calculate the loss (test loss because it's on the test dataset)
         test_loss = loss_fn(test_pred, y_test)
 
+# Get predictions for our trained model
 with torch.inference_mode():
     y_preds_new = model_0(X_test)
 
 
+# Display graph 
 plot_predictions(predictions=y_preds_new)
 plt.show()
-
 
 
 
